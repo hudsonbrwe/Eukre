@@ -1,0 +1,165 @@
+import random
+import os
+import time
+import myUtilities
+import gamePlay
+from magic import playingcards as p
+
+#make a deck of cards
+myDeck = p.Deck()
+
+#Makes a Euchre deck
+for j in range (4):
+  for i in range(7):
+    myDeck.remove_card(1 + (6 * j))
+    
+myDeck.shuffle()
+
+
+
+def initiate_game(): #Initiates starter variables   
+  dealer = random.randint(1,4)
+  dealer = 1
+  myHand = []
+  playerTwoHand = []
+  partnerHand = []
+  playerFourHand = []
+  for i in range (5):
+    myHand.append(myDeck.draw_card())
+    playerTwoHand.append(myDeck.draw_card())
+    partnerHand.append(myDeck.draw_card())
+    playerFourHand.append(myDeck.draw_card())
+  upCard = myDeck.draw_card()
+  return dealer, myHand, playerTwoHand, partnerHand, playerFourHand, upCard  
+
+
+def find_prominant_suit(hand):
+  clubs = 0
+  spades = 0
+  hearts = 0
+  diamonds = 0
+  for i in range (len(hand)):
+    if (hand[i].suit) == 0:
+      spades += 1
+    elif (hand[i].suit) == 1:
+      clubs += 1
+    elif (hand[i].suit) == 2:
+      hearts += 1
+    elif (hand[i].suit) == 3:
+      diamonds += 1
+
+  if spades > clubs and spades > hearts and spades > diamonds:
+    return "Spades"
+  elif clubs > spades and clubs > hearts and clubs > diamonds:
+    return "Clubs"
+  elif hearts > clubs and hearts > spades and hearts > diamonds:
+    return "Hearts"
+  elif diamonds > clubs and diamonds > hearts and diamonds > spades:
+    return "Diamonds"
+  else:
+    return "Tied"
+
+
+def pick_trump_comp_decision (upCard, playerHand, upCardDown, comp):
+  if comp == 2:
+    orderedUp = False
+    if upCardDown == False:
+      myUtilities.wait (f"The person to your left is deciding if he would like {upCard.suit_name} to be trump")
+      playerProminantSuit = find_prominant_suit (playerHand)
+      if playerProminantSuit == upCard.suit_name:
+        holder = myUtilities.hold(f"The person to your left is ordering you up, you have picked up a {upCard}   (Enter to Continue)")      
+        orderedUp = True
+      else:
+        myUtilities.wait ("The person to your left passes")
+        orderedUp = False
+    else:
+      myUtilities.wait (f"The person to your left is deciding if he would like to pick trump")
+      playerProminantSuit = find_prominant_suit (playerHand)
+      if playerProminantSuit != "Tied":
+        holder = myUtilities.hold(f"The person to your left has picked {playerProminantSuit} to be trump   (Enter to Continue)")      
+        return True, False, playerProminantSuit  
+      else:
+        myUtilities.wait ("The person to your left passes")
+        orderedUp = False
+  else:
+    if upCardDown == False:
+      myUtilities.wait (f"The person to your right is deciding if he would like {upCard.suit_name} to be trump")
+      playerProminantSuit = find_prominant_suit (playerHand)
+      if playerProminantSuit == upCard.suit_name:
+        holder = myUtilities.hold(f"The person to your right is ordering you up, you have picked up a {upCard}   (Enter to Continue)")      
+        orderedUp = True
+      else:
+        myUtilities.wait ("The person to your right passes")
+        orderedUp = False
+    else:
+      myUtilities.wait (f"The person to your right is deciding if he would like to pick trump")
+      playerProminantSuit = find_prominant_suit (playerHand)
+      if playerProminantSuit != "Tied":
+        holder = myUtilities.hold(f"The person to your right has picked {playerProminantSuit} to be trump   (Enter to Continue)")      
+        return True , False, playerProminantSuit 
+      else:
+        myUtilities.wait ("The person to your right passes")
+        orderedUp = False
+        
+  return orderedUp, True, False  
+
+
+def pick_trump(dealer, myHand, upCard, playerTwoHand, playerFourHand):
+  orderedUp = False
+  trumpPicked = False
+  upCardDown = False
+  print ("Up Card:")
+  print (upCard.img)
+  if dealer == 1:
+    orderedUp, userPickedTrump, trump = pick_trump_comp_decision (upCard, playerTwoHand, upCardDown, 2)
+    if orderedUp == True:
+      trump = upCard.suit_name
+    if orderedUp == False:
+      myUtilities.wait (f"Your partner is deciding if he would like to order you up, therefore going alone")
+      myUtilities.wait ("Your partner passes")
+      orderedUp, userPickedTrump, trump = pick_trump_comp_decision (upCard, playerFourHand, upCardDown, 4)
+    if orderedUp == True:
+      trump = upCard.suit_name
+    if orderedUp == False:
+      if myUtilities.str_validator(f"Would you like to pick up the {upCard}? (y/n)", ["y", "n"], myHand, upCard, trumpPicked, False, False) == "y":
+        orderedUp = True
+        userPickedTrump = True
+        trump = upCard.suit_name
+        os.system('clear')
+      else:
+        myUtilities.wait (f"You have passed, the {upCard} has been turned down")
+        upCardDown = True
+        orderedUp, userPickedTrump, trump = pick_trump_comp_decision (upCard, playerTwoHand, upCardDown, 2)
+    if orderedUp == False:
+      myUtilities.wait (f"Your partner is deciding if he would like to pick trump, therefore going alone")
+      myUtilities.wait ("Your partner passes")
+      orderedUp, userPickedTrump, trump = pick_trump_comp_decision (upCard, playerFourHand, upCardDown, 4)
+    if orderedUp == False:
+      suitOne, suitTwo, suitThree = find_suits (upCard)
+      trumpNum = myUtilities.str_validator(f"What would you like trump to be? ( {suitOne} (1)  / {suitTwo} (2)  / {suitThree} (3)  )", ["1", "2", "3"], myHand, upCard, trumpPicked, False, False)
+      if trumpNum == "1":
+        trump = suitOne
+      elif trumpNum == "2":
+        trump = suitTwo
+      elif trumpNum == "3":
+        trump = suitThree
+      os.system('clear')
+    
+      
+    if orderedUp == True and userPickedTrump == True:
+      discard = gamePlay.use_card(myHand, upCard, trumpPicked, f"You must pick up the upcard, which card would you like to get rid of? (press the number corresponding to the card you would like to get rid of)", False, True)
+      myHand.remove (discard)
+      myHand.append (upCard)
+      trumpPicked = True
+      os.system('clear')
+    
+    gamePlay.show_cards(myHand, upCard, True, False, trump)
+    return trump
+
+
+
+def find_suits (upCard):
+  suitList = ["Clubs", "Spades", "Hearts", "Diamonds"]
+  suitList.remove (upCard.suit_name)
+  return suitList[0], suitList[1], suitList[2]
+
