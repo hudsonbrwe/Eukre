@@ -3,8 +3,11 @@ import os
 import time
 import gamePlay
 
+
+
+
 def wait (message):  #Dispayes a message with a wait   #Copied from other code
-  waitTime = 0.05
+  waitTime = 0.1
   os.system('clear')
   for i in range (3):
     print (message)
@@ -21,7 +24,7 @@ def wait (message):  #Dispayes a message with a wait   #Copied from other code
     os.system('clear')
 
 
-def str_validator(question, validAnswers, myHand, upCard, trumpPicked, makingDecision, trump):
+def str_validator(question, validAnswers, myHand, upCard, trumpPicked, makingDecision, trump): #Validates a string input to make sure the user is inputing a valid input, also shows the players cards when "show cards" is inputed
   while True:
     var = str.lower(input(question))
     if var == "show cards":
@@ -33,7 +36,9 @@ def str_validator(question, validAnswers, myHand, upCard, trumpPicked, makingDec
       print ("ERROR")
 
 
-def input_validator_int (onlyPositive, message):
+
+
+def input_validator_int (onlyPositive, message): #Validates int inputs to 
   while True:
     try:
       userInput = int(input(message))
@@ -47,6 +52,8 @@ def input_validator_int (onlyPositive, message):
       print ("ERROR")
 
 
+
+
 def hold(message):
   holder = input (message)
   os.system('clear')
@@ -57,14 +64,3 @@ def set_card_val (card):
       return card.value
     else:
       return 14
-
-
-
-
-
-
-
-
-
-
-
