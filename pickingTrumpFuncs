@@ -5,19 +5,10 @@ import myUtilities
 import gamePlay
 from magic import playingcards as p
 
-#make a deck of cards
-myDeck = p.Deck()
-
-#Makes a Euchre deck
-for j in range (4):
-  for i in range(7):
-    myDeck.remove_card(1 + (6 * j))
-    
-myDeck.shuffle()
 
 
 
-def initiate_game(): #Initiates starter variables   
+def initiate_game(myDeck): #Initiates starter variables including all four hands
   dealer = random.randint(1,4)
   dealer = 1
   myHand = []
@@ -33,7 +24,9 @@ def initiate_game(): #Initiates starter variables
   return dealer, myHand, playerTwoHand, partnerHand, playerFourHand, upCard  
 
 
-def find_prominant_suit(hand):
+
+
+def find_prominant_suit(hand): #Finds the most prominant suit in a hand to help the computer decide if he wants to pick trump
   clubs = 0
   spades = 0
   hearts = 0
@@ -60,7 +53,9 @@ def find_prominant_suit(hand):
     return "Tied"
 
 
-def pick_trump_comp_decision (upCard, playerHand, upCardDown, comp):
+
+
+def pick_trump_comp_decision (upCard, playerHand, upCardDown, comp): #Decition making for if and what each computer wants trump to be
   if comp == 2:
     orderedUp = False
     if upCardDown == False:
@@ -104,7 +99,9 @@ def pick_trump_comp_decision (upCard, playerHand, upCardDown, comp):
   return orderedUp, True, False  
 
 
-def pick_trump(dealer, myHand, upCard, playerTwoHand, playerFourHand):
+
+
+def pick_trump(dealer, myHand, upCard, playerTwoHand, playerFourHand): #Main function for picking trump at the beginning of each hand, includes computer decisions and user input
   orderedUp = False
   trumpPicked = False
   upCardDown = False
@@ -158,8 +155,8 @@ def pick_trump(dealer, myHand, upCard, playerTwoHand, playerFourHand):
 
 
 
-def find_suits (upCard):
+
+def find_suits (upCard): #Finds the suits you can pick trump to be (as you cannot pick the turned down suit)
   suitList = ["Clubs", "Spades", "Hearts", "Diamonds"]
   suitList.remove (upCard.suit_name)
   return suitList[0], suitList[1], suitList[2]
-
